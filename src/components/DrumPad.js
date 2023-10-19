@@ -12,7 +12,7 @@ const drumKeys = [
   { key: 'C', id: 'closedhh', displayName: 'Closed HH', audioSrc: '/audio/closed-hh.mp3' }
 ]
 
-export default function DrumPad() {
+export default function DrumPad({ setDisplayText }) {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
     return () => {
@@ -20,10 +20,11 @@ export default function DrumPad() {
     }
   }, [])
 
-  const playAudio = (key) => {
+  const playAudio = (key, displayName) => {
     const audio = document.getElementById(key)
     audio.currentTime = 0
     audio.play()
+    setDisplayText(displayName)
   }
 
   const handleKeyDown = (event) => {
@@ -34,13 +35,14 @@ export default function DrumPad() {
       const audio = document.getElementById(key)
       audio.currentTime = 0
       audio.play()
+      setDisplayText(drumKey.displayName)
     }
   }
 
   return (
     <div>
-      {drumKeys.map(({ key, id, audioSrc }) => (
-        <div id={id} key={id} onClick={() => playAudio(key)}>
+      {drumKeys.map(({ key, id, audioSrc, displayName }) => (
+        <div id={id} key={id} onClick={() => playAudio(key, displayName)}>
           {key}
           <audio id={key} src={audioSrc}></audio>
         </div>

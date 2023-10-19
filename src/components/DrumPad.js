@@ -1,3 +1,5 @@
+import { useEffect } from "react"
+
 const drumKeys = [
   { key: 'Q', id: 'heater1', audioSrc: '/audio/heater-1.mp3' },
   { key: 'W', id: 'heater2', audioSrc: '/audio/heater-2.mp3' },
@@ -11,9 +13,28 @@ const drumKeys = [
 ]
 
 export default function DrumPad() {
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+
   const playAudio = (key) => {
     const audio = document.getElementById(key)
+    audio.currentTime = 0
     audio.play()
+  }
+
+  const handleKeyDown = (event) => {
+    const key = event.key.toUpperCase()
+    const drumKey = drumKeys.find(d => d.key === key)
+
+    if (drumKey) {
+      const audio = document.getElementById(key)
+      audio.currentTime = 0
+      audio.play()
+    }
   }
 
   return (

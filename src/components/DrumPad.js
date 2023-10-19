@@ -11,11 +11,17 @@ const drumKeys = [
 ]
 
 export default function DrumPad() {
+  const playAudio = (key) => {
+    const audio = document.getElementById(key)
+    audio.play()
+  }
+
   return (
     <div>
-      {drumKeys.map(({ key, id }) => (
-        <div id={id} key={id}>
+      {drumKeys.map(({ key, id, audioSrc }) => (
+        <div id={id} key={id} onClick={() => playAudio(key)}>
           {key}
+          <audio id={key} src={audioSrc}></audio>
         </div>
       ))}
     </div>

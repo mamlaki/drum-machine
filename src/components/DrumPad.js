@@ -50,7 +50,7 @@ export default function DrumPad({ setDisplayText, volume }) {
     <div className="row">
       {drumKeys.map(({ key, id, audioSrc, displayName }) => (
         <div id={id} key={id} onClick={() => playAudio(key, displayName)} className="col-md-4 p-2">
-          <div className={`drumkeys-container p-4 text-center rounded fs-4 ${hoverId === id || activeId === id ? 'drumkeys' : 'bg-dark'} ${activeId === id ? 'drumkeys-active' : ''}`} onMouseEnter={() => setHoverId(id)} onMouseLeave={() => setHoverId(null)}>
+          <div className={`drumkeys-container p-4 text-center rounded fs-4 unselectable ${hoverId === id || activeId === id ? 'drumkeys' : 'bg-dark'} ${activeId === id ? 'drumkeys-active' : ''}`} onMouseEnter={() => setHoverId(id)} onMouseLeave={() => setHoverId(null)}>
             {key}
           </div>
           <audio id={key} src={audioSrc}></audio>

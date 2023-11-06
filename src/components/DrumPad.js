@@ -1,4 +1,5 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import '../App.css'
 
 const drumKeys = [
   { key: 'Q', id: 'heater1', displayName: 'Heater 1', audioSrc: '/audio/heater-1.mp3' },
@@ -20,6 +21,9 @@ export default function DrumPad({ setDisplayText }) {
     }
   }, [])
 
+  const [hoverId, setHoverId] = useState(null)
+  const [activeId, setActiveId] = useState(null)
+
   const playAudio = (key, displayName) => {
     const audio = document.getElementById(key)
     audio.currentTime = 0
@@ -32,18 +36,25 @@ export default function DrumPad({ setDisplayText }) {
     const drumKey = drumKeys.find(d => d.key === key)
 
     if (drumKey) {
+      setActiveId(drumKey.id)
       const audio = document.getElementById(key)
       audio.currentTime = 0
       audio.play()
       setDisplayText(drumKey.displayName)
+
+      setTimeout(() => {
+        setActiveId(null)
+      }, 200)
     }
   }
 
   return (
-    <div>
+    <div className="row">
       {drumKeys.map(({ key, id, audioSrc, displayName }) => (
-        <div id={id} key={id} onClick={() => playAudio(key, displayName)}>
-          {key}
+        <div id={id} key={id} onClick={() => playAudio(key, displayName)} className="col-md-4 p-2">
+          <div className={`drumkeys-container p-4 text-center rounded shadow-lg fs-4 ${hoverId === id || activeId === id ? 'drumkeys' : 'bg-secondary'} ${activeId === id ? 'drumkeys-active' : ''}`} onMouseEnter={() => setHoverId(id)} onMouseLeave={() => setHoverId(null)}>
+            {key}
+          </div>
           <audio id={key} src={audioSrc}></audio>
         </div>
       ))}

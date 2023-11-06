@@ -13,9 +13,10 @@ const drumKeys = [
   { key: 'C', id: 'closedhh', displayName: 'Closed HH', audioSrc: '/audio/closed-hh.mp3' }
 ]
 
-export default function DrumPad({ setDisplayText, volume }) {
+export default function DrumPad({ setDisplayText, volume, isPoweredOn }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
+      if (!isPoweredOn) return
       const key = event.key.toUpperCase()
       const drumKey = drumKeys.find(d => d.key === key)
 
@@ -33,12 +34,14 @@ export default function DrumPad({ setDisplayText, volume }) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [volume])
+  }, [volume, isPoweredOn])
 
   const [hoverId, setHoverId] = useState(null)
   const [activeId, setActiveId] = useState(null)
 
   const playAudio = (key, displayName) => {
+    if (!isPoweredOn) return
+
     const audio = document.getElementById(key)
     audio.volume = volume
     audio.currentTime = 0
@@ -49,7 +52,7 @@ export default function DrumPad({ setDisplayText, volume }) {
   return (
     <div className="row">
       {drumKeys.map(({ key, id, audioSrc, displayName }) => (
-        <div id={id} key={id} onClick={() => playAudio(key, displayName)} className="col-md-4 p-2">
+        <div id={id} key={id} onClick={() => isPoweredOn && playAudio(key, displayName)} className="col-md-4 p-2">
           <div className={`drumkeys-container p-4 text-center rounded fs-4 unselectable ${hoverId === id || activeId === id ? 'drumkeys' : 'bg-dark'} ${activeId === id ? 'drumkeys-active' : ''}`} onMouseEnter={() => setHoverId(id)} onMouseLeave={() => setHoverId(null)}>
             {key}
           </div>

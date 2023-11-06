@@ -13,39 +13,37 @@ const drumKeys = [
   { key: 'C', id: 'closedhh', displayName: 'Closed HH', audioSrc: '/audio/closed-hh.mp3' }
 ]
 
-export default function DrumPad({ setDisplayText }) {
+export default function DrumPad({ setDisplayText, volume }) {
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      const key = event.key.toUpperCase()
+      const drumKey = drumKeys.find(d => d.key === key)
+
+      if (drumKey) {
+        setActiveId(drumKey.id)
+        playAudio(key, drumKey.displayName)
+
+        setTimeout(() => {
+          setActiveId(null)
+        }, 200)
+      }
+    }
+
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [volume])
 
   const [hoverId, setHoverId] = useState(null)
   const [activeId, setActiveId] = useState(null)
 
   const playAudio = (key, displayName) => {
     const audio = document.getElementById(key)
+    audio.volume = volume
     audio.currentTime = 0
     audio.play()
     setDisplayText(displayName)
-  }
-
-  const handleKeyDown = (event) => {
-    const key = event.key.toUpperCase()
-    const drumKey = drumKeys.find(d => d.key === key)
-
-    if (drumKey) {
-      setActiveId(drumKey.id)
-      const audio = document.getElementById(key)
-      audio.currentTime = 0
-      audio.play()
-      setDisplayText(drumKey.displayName)
-
-      setTimeout(() => {
-        setActiveId(null)
-      }, 200)
-    }
   }
 
   return (

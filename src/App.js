@@ -41,15 +41,15 @@ export default function App() {
     <div className='vh-100 d-flex align-items-center justify-content-center bg-dark text-white fw-bold'>
       <div id='drum-machine' className='border border-5 border-warning rounded p-4 d-flex justify-content-center align-items-center bg-secondary '>
         <div className='row'>
-          <div className='col-md-6'>
-            <DrumPad setDisplayText={handleDisplayText} volume={volume} isPoweredOn={isPoweredOn} />
-          </div>
           <div className='col-md-6 d-flex align-items-center justify-content-center flex-column '>
             <button onClick={() => setIsPoweredOn(prev => !prev)} className='power-button'>
               Power
             </button>
             <div id='display' className='bg-dark p-4 rounded text-center w-50 fs-5'>{displayText}</div>
             <input type='range' className='form-range mt-3' min='0' max='1' step='0.01' value={volume} id='volumeControl' onChange={handleVolumeChange} disabled={!isPoweredOn} />
+          </div>
+          <div className='col-md-6'>
+            <DrumPad setDisplayText={handleDisplayText} volume={volume} isPoweredOn={isPoweredOn} />
           </div>
         </div>
       </div>

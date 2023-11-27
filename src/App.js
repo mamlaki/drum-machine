@@ -14,40 +14,13 @@ export default function App() {
 
   useEffect(() => {
     const knob = knobRef.current
-    if (!knob) {
+    if (!knob || !isPoweredOn) {
       console.log('Knob not found')
       return
     }
 
-    const handleMouseDown = () => {
-      console.log('MouseDown - setting isDragging to true')
-      setIsDragging(true)
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp, { once: true})
-    }
-
-    console.log('Attaching mousedown event listener to the knob')
-    knob.addEventListener('mousedown', handleMouseDown)
-
-    return () => {
-      knob.removeEventListener('mousedown', handleMouseDown)
-    }
-  }, [])
-
-  const updateDisplayVolume = (newVolume) => {
-    clearTimeout(displayTimeoutRef.current)
-    setDisplayMode('volume')
-    setDisplayText(`Volume: ${(newVolume * 100).toFixed(0)}`)
-    displayTimeoutRef.current = setTimeout(() => {
-      setDisplayText('')
-      setDisplayMode('sound')
-    }, 1000)
-  }
-  const handleMouseMove = (event) => {
-    console.log('MouseMove')
-    if (!isDragging) return
-
-    if (isDragging) {
+    const handleMouseMove = (event) => {
+      console.log('MouseMove')
       console.log('Inside volume calculation block')
       const knobRect = knobRef.current.getBoundingClientRect()
       const centerX = knobRect.left + knobRect.width / 2
@@ -57,22 +30,59 @@ export default function App() {
       
       let angle = Math.atan2(dy, dx) * (180 / Math.PI)
       angle = (angle + 360) % 360
-
+  
       let normalizedAngle = (angle - 45 + 360) % 360
       normalizedAngle = Math.max(0, Math.min(normalizedAngle, 270))
-
+  
       let newVolume = normalizedAngle / 270
       console.log('Setting new volume: ', newVolume)
+
       setVolume(newVolume)
       console.log('New Volume: ', newVolume)
       updateDisplayVolume(newVolume)
     }
-  }
 
-  const handleMouseUp = () => {
-    console.log('MouseUp - setting isDragging to false')
-    setIsDragging(false)
-    document.removeEventListener('mousemove', handleMouseMove)
+    const handleMouseUp = () => {
+      console.log('MouseUp - setting isDragging to false')
+      setIsDragging(false)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    const handleMouseDown = () => {
+      console.log('MouseDown - setting isDragging to true')
+      // if (!isPoweredOn) {
+      //   console.log('Power is off, ignoring mouse down func')
+      //   return
+      // }
+      console.log('Setting isDragging to true')
+      setIsDragging(true)
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp, { once: true})
+    }
+
+    knob.addEventListener('mousedown', handleMouseDown)
+
+    return () => {
+      knob.removeEventListener('mousedown', handleMouseDown)
+    }
+  }, [isPoweredOn])
+
+
+  const updateDisplayVolume = (newVolume) => {
+    // if (!isPoweredOn) {
+    //   return
+    // }
+
+    clearTimeout(displayTimeoutRef.current)
+    setDisplayMode('volume')
+    setDisplayText(`Volume: ${(newVolume * 100).toFixed(0)}`)
+    displayTimeoutRef.current = setTimeout(() => {
+      if (isPoweredOn) {
+        setDisplayText('')
+        setDisplayMode('sound')
+      }
+    }, 1000)
   }
 
   const handleDisplayText = (text) => {

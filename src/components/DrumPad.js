@@ -43,6 +43,7 @@ export default function DrumPad({ setDisplayText, volume, isPoweredOn }) {
     if (!isPoweredOn) return
 
     const audio = document.getElementById(key)
+    console.log('Playing audio at volume:', volume)
     audio.volume = volume
     audio.currentTime = 0
     audio.play()

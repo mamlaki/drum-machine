@@ -6,8 +6,6 @@ export default function App() {
   const [displayText, setDisplayText] = useState('')
   const [volume, setVolume] = useState(0.5)
   const [isPoweredOn, setIsPoweredOn] = useState(true)
-  const [isDragging, setIsDragging] = useState(true)
-  const [displayMode, setDisplayMode] = useState('sound')
   const displayTimeoutRef = useRef(null)
   const previousDisplayTextRef = useRef('')
   const knobRef = useRef(null)
@@ -15,16 +13,15 @@ export default function App() {
   useEffect(() => {
     const knob = knobRef.current
     if (!knob || !isPoweredOn) {
-      console.log('Knob not found')
       return
     }
 
     const handleMouseMove = (event) => {
-      console.log('MouseMove')
-      console.log('Inside volume calculation block')
       const knobRect = knobRef.current.getBoundingClientRect()
+
       const centerX = knobRect.left + knobRect.width / 2
       const centerY = knobRect.top + knobRect.height / 2
+
       const dx = event.clientX - centerX
       const dy = event.clientY - centerY
       
@@ -38,25 +35,15 @@ export default function App() {
       console.log('Setting new volume: ', newVolume)
 
       setVolume(newVolume)
-      console.log('New Volume: ', newVolume)
       updateDisplayVolume(newVolume)
     }
 
     const handleMouseUp = () => {
-      console.log('MouseUp - setting isDragging to false')
-      setIsDragging(false)
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
     const handleMouseDown = () => {
-      console.log('MouseDown - setting isDragging to true')
-      // if (!isPoweredOn) {
-      //   console.log('Power is off, ignoring mouse down func')
-      //   return
-      // }
-      console.log('Setting isDragging to true')
-      setIsDragging(true)
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp, { once: true})
     }
@@ -70,30 +57,22 @@ export default function App() {
 
 
   const updateDisplayVolume = (newVolume) => {
-    // if (!isPoweredOn) {
-    //   return
-    // }
-
     clearTimeout(displayTimeoutRef.current)
-    setDisplayMode('volume')
     setDisplayText(`Volume: ${(newVolume * 100).toFixed(0)}`)
     displayTimeoutRef.current = setTimeout(() => {
       if (isPoweredOn) {
         setDisplayText('')
-        setDisplayMode('sound')
       }
     }, 1000)
   }
 
   const handleDisplayText = (text) => {
-    if (displayMode !== 'volume') {
-      clearTimeout(displayTimeoutRef.current)
-      previousDisplayTextRef.current = text
-      setDisplayText(text)
-      displayTimeoutRef.current = setTimeout(() => {
-        setDisplayText(previousDisplayTextRef.current)
-      }, 1000)
-    }
+    clearTimeout(displayTimeoutRef.current)
+    previousDisplayTextRef.current = text
+    setDisplayText(text)
+    displayTimeoutRef.current = setTimeout(() => {
+      setDisplayText(previousDisplayTextRef.current)
+    }, 1000)
   }
 
   return (

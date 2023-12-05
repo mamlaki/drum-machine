@@ -61,7 +61,7 @@ export default function App() {
     setDisplayText(`Volume: ${(newVolume * 100).toFixed(0)}`)
     displayTimeoutRef.current = setTimeout(() => {
       if (isPoweredOn) {
-        setDisplayText('')
+        setDisplayText(previousDisplayTextRef.current)
       }
     }, 1000)
   }

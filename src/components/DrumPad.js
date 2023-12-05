@@ -16,18 +16,22 @@ const drumKeys = [
 export default function DrumPad({ setDisplayText, volume, isPoweredOn }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (!isPoweredOn) return
-      const key = event.key.toUpperCase()
-      const drumKey = drumKeys.find(d => d.key === key)
+        const key = event.key.toUpperCase()
+        const drumKey = drumKeys.find(d => d.key === key)
+  
+        if (drumKey) {
+          setActiveId(drumKey.id)
 
-      if (drumKey) {
-        setActiveId(drumKey.id)
-        playAudio(key, drumKey.displayName)
+          if (!isPoweredOn) {
+            playDisabledAudio()
+          } else {
+            playAudio(key, drumKey.displayName)
+          }
 
-        setTimeout(() => {
-          setActiveId(null)
-        }, 200)
-      }
+          setTimeout(() => {
+            setActiveId(null)
+          }, 200)
+        }
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -40,8 +44,6 @@ export default function DrumPad({ setDisplayText, volume, isPoweredOn }) {
   const [activeId, setActiveId] = useState(null)
 
   const playAudio = (key, displayName) => {
-    if (!isPoweredOn) return
-
     const audio = document.getElementById(key)
     console.log('Playing audio at volume:', volume)
     audio.volume = volume
@@ -50,10 +52,17 @@ export default function DrumPad({ setDisplayText, volume, isPoweredOn }) {
     setDisplayText(displayName)
   }
 
+  const playDisabledAudio = () => {
+    const audio = new Audio('/audio/apple-magic-keyboard-space-bar-press.mp3')
+    audio.volume = 0.2
+    audio.currentTime = 0
+    audio.play()
+  }
+
   return (
     <div className="row">
       {drumKeys.map(({ key, id, audioSrc, displayName }) => (
-        <div id={id} key={id} onClick={() => isPoweredOn && playAudio(key, displayName)} className="col-md-4 p-2">
+        <div id={id} key={id} onClick={() => isPoweredOn ? playAudio(key, displayName) : playDisabledAudio()} className="col-md-4 p-2">
           <div className={`drumkeys-container p-4 text-center rounded fs-4 unselectable ${hoverId === id || activeId === id ? 'drumkeys' : 'bg-dark'} ${activeId === id ? 'drumkeys-active' : ''}`} onMouseEnter={() => setHoverId(id)} onMouseLeave={() => setHoverId(null)}>
             {key}
           </div>

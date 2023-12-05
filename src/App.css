@@ -20,7 +20,7 @@
 .drumkeys:hover,
 .drumkeys-active,
 .drumkeys:active {
-  background-color: lawngreen;
+  background-color: var(--bootstrap-bg-dark);
   cursor: pointer;
 }
 

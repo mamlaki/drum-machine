@@ -51,3 +51,34 @@
   border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
+
+.power-btn-container {
+  overflow: hidden;
+  background-color: black;
+}
+
+.power-button {
+  padding: 15px 25px;
+  border: none;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.power-button:active {
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5) inset;
+  transform: scale(0.97);
+}
+
+.power-btn-label,
+.power-light-container p {
+  font-size: 12px;
+}
+
+.power-light-container {
+  margin-top: 1rem;
+}
+
+.on-off-lights {
+  width: 20px;
+  height: 10px;
+}

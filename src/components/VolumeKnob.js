@@ -4,11 +4,15 @@ export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
   const [isDragging, setIsDragging] = useState(false)
   const isDraggingRef = useRef(isDragging)
   const initialMousePosition = useRef({ x: 0, y: 0 })
+  const initialMouseAngle = useRef(0)
+  const initialAngle = useRef(0)
   const movementThreshold = 5
 
   const knobRef = useRef(null)
   const numberOfNotches = 11
   const knobDiameter = 100
+
+  const sensitivity = 0.5
 
   useEffect(() => {
     console.log('useEffect running, isPoweredOn:', isPoweredOn);
@@ -31,7 +35,14 @@ export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
         let angle = Math.atan2(dy, dx) * (180 / Math.PI)
         angle = (angle + 360) % 360
     
-        let normalizedAngle = angle - 45
+        let angleDifference = angle - initialMouseAngle.current
+
+        angleDifference *= sensitivity
+
+        let newAngle = initialAngle.current + angleDifference
+
+        let normalizedAngle = newAngle - 45
+        normalizedAngle = (normalizedAngle + 360) % 360
         normalizedAngle = Math.max(0, Math.min(normalizedAngle, 270))
     
         let newVolume = normalizedAngle / 270
@@ -58,7 +69,19 @@ export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
     }
 
     const handleMouseDown = (event) => {
-      initialMousePosition.current = { x: event.clientX, y: event.clientY }
+      const knobRect = knobRef.current.getBoundingClientRect()
+      const centerX = knobRect.left + knobRect.width / 2
+      const centerY = knobRect.top + knobRect.height / 2
+
+      const dx = event.clientX - centerX
+      const dy = event.clientY - centerY
+
+      initialMouseAngle.current = Math.atan2(dy, dx) * (180 / Math.PI)
+      initialMouseAngle.current = (initialMouseAngle.current + 360) % 360
+
+      initialAngle.current = volume * 270
+      
+      initialMousePosition.current = { x: event.clientX, y: event.clientY}
       console.log('MouseDown event attached');
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp, { once: true })

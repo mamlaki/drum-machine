@@ -1,6 +1,11 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
+  const [isDragging, setIsDragging] = useState(false)
+  const isDraggingRef = useRef(isDragging)
+  const initialMousePosition = useRef({ x: 0, y: 0 })
+  const movementThreshold = 5
+
   const knobRef = useRef(null)
   const numberOfNotches = 11
   const knobDiameter = 100
@@ -14,34 +19,46 @@ export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
     }
 
     const handleMouseMove = (event) => {
-      const knobRect = knobRef.current.getBoundingClientRect()
+      if (isDraggingRef.current) {
+        const knobRect = knobRef.current.getBoundingClientRect()
 
-      const centerX = knobRect.left + knobRect.width / 2
-      const centerY = knobRect.top + knobRect.height / 2
-
-      const dx = event.clientX - centerX
-      const dy = event.clientY - centerY
-      
-      let angle = Math.atan2(dy, dx) * (180 / Math.PI)
-      angle = (angle + 360) % 360
+        const centerX = knobRect.left + knobRect.width / 2
+        const centerY = knobRect.top + knobRect.height / 2
   
-      let normalizedAngle = angle - 45
-      normalizedAngle = Math.max(0, Math.min(normalizedAngle, 270))
+        const dx = event.clientX - centerX
+        const dy = event.clientY - centerY
+        
+        let angle = Math.atan2(dy, dx) * (180 / Math.PI)
+        angle = (angle + 360) % 360
+    
+        let normalizedAngle = angle - 45
+        normalizedAngle = Math.max(0, Math.min(normalizedAngle, 270))
+    
+        let newVolume = normalizedAngle / 270
+        console.log('Setting new volume: ', newVolume)
   
-      let newVolume = normalizedAngle / 270
-      console.log('Setting new volume: ', newVolume)
-
-      setVolume(newVolume)
-      console.log(`Angle: ${angle}, Normalized Angle: ${normalizedAngle}, New Volume: ${newVolume}`);
+        setVolume(newVolume)
+        console.log(`Angle: ${angle}, Normalized Angle: ${normalizedAngle}, New Volume: ${newVolume}`);
+      } else {
+        const dx = event.clientX - initialMousePosition.current.x
+        const dy = event.clientY - initialMousePosition.current.y
+        if (Math.sqrt(dx * dx + dy * dy) > movementThreshold) {
+          setIsDragging(true)
+          isDraggingRef.current = true
+        }
+      }
       // updateDisplayVolume(newVolume)
     }
 
     const handleMouseUp = () => {
+      setIsDragging(false)
+      isDraggingRef.current = false
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
-    const handleMouseDown = () => {
+    const handleMouseDown = (event) => {
+      initialMousePosition.current = { x: event.clientX, y: event.clientY }
       console.log('MouseDown event attached');
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp, { once: true })
@@ -52,6 +69,8 @@ export default function VolumeKnob({ volume, setVolume, isPoweredOn }) {
 
     return () => {
       knob.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isPoweredOn])
 
